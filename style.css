@@ -1,0 +1,82 @@
+body {
+    font-family: system-ui;
+    background-color: white;
+    color: black;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background-color: white;
+    color: #000080;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.container {
+    position: relative;
+    text-align: center;
+    margin-top: 50px; /* تقليل الهامش العلوي */
+    padding: 20px;
+    min-height: 100vh; /* لجعل العنصر يأخذ ارتفاع الصفحة بالكامل */
+}
+
+img {
+    max-width: 100%; /* لجعل الصورة متجاوبة */
+    height: auto;
+    margin-bottom: 50px; /* إضافة هامش أسفل الصورة */
+}
+
+.search-box {
+    position: absolute;
+    top: 25%; /* تحريك البحث للأسفل */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    width: 90%;
+    max-width: 400px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    width: calc(100% - 20px);
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #f06d06;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #d45a05;
+}
+
+@media (max-width: 600px) {
+    .search-box {
+        top: 70%; /* تعديل الموضع للجوال */
+        width: 80%;
+    }
+
+    img {
+        max-width: 90%; /* زيادة حجم الصورة قليلاً على الجوال */
+        margin-bottom: 30px; /* زيادة الهامش أسفل الصورة */
+    }
+}
