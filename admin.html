@@ -164,11 +164,17 @@
       const location = document.getElementById('equipLocation').value.trim();
       const note = document.getElementById('equipNote').value.trim();
       if(!id || !location) return;
-      const list = getEquipments();
-      list.push({id, location, note});
-      saveEquipments(list);
-      this.reset();
-      renderList();
+      fetch('https://script.google.com/macros/s/AKfycbxtLYWETbn9LvAo8Oef9pGYPnpnV5_A5dK0sNW-egjueDJQvV_k2iCBEjSHZSQpULnWuQ/exec', {
+        method: 'POST',
+        body: JSON.stringify({id, location, note}),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.text())
+      .then(msg => {
+        alert(msg);
+        this.reset();
+      })
+      .catch(() => alert('حدث خطأ أثناء الحفظ!'));
     };
     function exportToJS() {
       var pass = prompt('أدخل الرقم السري لتصدير البيانات:');
