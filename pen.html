@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ملاحظات ومقترحات</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { background: #f8f8f8; }
+    .pen-actions-container {
+      max-width: 400px;
+      margin: 80px auto 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #0001;
+      padding: 30px 20px 20px 20px;
+      text-align: center;
+    }
+    .pen-actions-container h2 {
+      color: var(--primary);
+      margin-bottom: 18px;
+      font-size: 1.2rem;
+    }
+    .pen-actions-container .pen-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .pen-actions-container a, .pen-actions-container button {
+      background: var(--secondary);
+      color: #fff;
+      border: none;
+      border-radius: 18px;
+      padding: 10px 0;
+      font-size: 1.1rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px #0001;
+      width: 100%;
+      display: block;
+    }
+    .pen-actions-container a:hover, .pen-actions-container button:hover {
+      background: var(--primary);
+    }
+    .pen-actions-container .back-btn {
+      background: #fff;
+      color: var(--primary);
+      border: 1.5px solid var(--secondary);
+      margin-top: 10px;
+    }
+    .pen-actions-container .back-btn:hover {
+      background: var(--secondary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="pen-actions-container">
+    <h2>خيارات الملاحظات والإدارة</h2>
+    <div class="pen-btns">
+      <button onclick="showAdminAccess()">إضافة المعدات وتعديل الملاحظات</button>
+    </div>
+    <button class="back-btn" onclick="window.location.href='index.html'">العودة للصفحة الرئيسية</button>
+  </div>
+  <script>
+    function showAdminAccess() {
+      window.location.href = 'admin.html';
+    }
+  </script>
+</body>
+</html>

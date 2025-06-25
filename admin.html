@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة إدارة المواقع</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-container {
+      max-width: 600px;
+      margin: 60px auto 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #0001;
+      padding: 30px 20px 20px 20px;
+      text-align: center;
+    }
+    .admin-container h2 {
+      color: var(--primary);
+      margin-bottom: 18px;
+      font-size: 1.3rem;
+    }
+    .admin-form input, .admin-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 14px;
+      border-radius: 8px;
+      border: 1.5px solid #CC7722;
+      font-size: 1rem;
+      outline: none;
+      background: #fafafa;
+    }
+    .admin-form button {
+      background: var(--secondary);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 22px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .admin-form button:hover {
+      background: var(--primary);
+    }
+    .admin-list {
+      margin-top: 30px;
+      text-align: right;
+    }
+    .admin-list-item {
+      background: #f7f7f7;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .admin-list-item .edit-btn, .admin-list-item .delete-btn {
+      background: var(--secondary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+    .admin-list-item .edit-btn:hover, .admin-list-item .delete-btn:hover {
+      background: var(--primary);
+    }
+    .back-btn {
+      background: #fff;
+      color: var(--primary);
+      border: 1.5px solid var(--secondary);
+      margin-top: 18px;
+      border-radius: 18px;
+      padding: 8px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+    }
+    .back-btn:hover {
+      background: var(--secondary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .export-btn {
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 22px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .export-btn:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h2>إدارة بيانات المواقع (محلي فقط)</h2>
+    <form class="admin-form" id="adminForm">
+      <input type="text" id="equipId" placeholder="رقم أو اسم المعدة" required>
+      <input type="text" id="equipLocation" placeholder="موقع المعدة (رابط أو إحداثيات)" required>
+      <textarea id="equipNote" placeholder="ملاحظة (اختياري)"></textarea>
+      <button type="submit">إضافة / تعديل</button>
+    </form>
+    <div class="admin-list" id="adminList"></div>
+    <button class="export-btn" onclick="exportToJS()">تصدير إلى كود JS</button>
+    <button class="back-btn" onclick="window.location.href='index.html'">العودة للصفحة الرئيسية</button>
+  </div>
+  <script>
+    // حفظ واسترجاع البيانات من LocalStorage
+    function getEquipments() {
+      return JSON.parse(localStorage.getItem('equipments') || '[]');
+    }
+    function saveEquipments(list) {
+      localStorage.setItem('equipments', JSON.stringify(list));
+    }
+    function renderList() {
+      const list = getEquipments();
+      const container = document.getElementById('adminList');
+      if(list.length === 0) {
+        container.innerHTML = '<p style="color:#888">لا توجد بيانات بعد.</p>';
+        return;
+      }
+      container.innerHTML = '';
+      list.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'admin-list-item';
+        div.innerHTML = `<b>${item.id}</b> | <span>${item.location}</span> <span style='color:#888;font-size:0.95em;'>${item.note||''}</span>
+          <button class='edit-btn' onclick='editItem(${idx})'>تعديل</button>
+          <button class='delete-btn' onclick='deleteItem(${idx})'>حذف</button>`;
+        container.appendChild(div);
+      });
+    }
+    function editItem(idx) {
+      const list = getEquipments();
+      const item = list[idx];
+      document.getElementById('equipId').value = item.id;
+      document.getElementById('equipLocation').value = item.location;
+      document.getElementById('equipNote').value = item.note||'';
+      // حذف القديم ليتم التعديل
+      list.splice(idx,1);
+      saveEquipments(list);
+      renderList();
+    }
+    function deleteItem(idx) {
+      if(confirm('هل أنت متأكد من حذف هذا السطر؟')){
+        const list = getEquipments();
+        list.splice(idx,1);
+        saveEquipments(list);
+        renderList();
+      }
+    }
+    document.getElementById('adminForm').onsubmit = function(e) {
+      e.preventDefault();
+      const id = document.getElementById('equipId').value.trim();
+      const location = document.getElementById('equipLocation').value.trim();
+      const note = document.getElementById('equipNote').value.trim();
+      if(!id || !location) return;
+      const list = getEquipments();
+      list.push({id, location, note});
+      saveEquipments(list);
+      this.reset();
+      renderList();
+    };
+    function exportToJS() {
+      var pass = prompt('أدخل الرقم السري لتصدير البيانات:');
+      if(pass !== 'admin123') {
+        if(pass) alert('الرقم السري غير صحيح!');
+        return;
+      }
+      const list = getEquipments();
+      if(list.length === 0) {
+        alert('لا توجد بيانات للتصدير');
+        return;
+      }
+      let js = 'const websites = {\n';
+      list.forEach(item => {
+        js += `  "${item.id}": "${item.location}", // ${item.note ? item.note.replace(/\n/g, ' ') : ''}\n`;
+      });
+      js += '};';
+      // عرض الكود في نافذة منبثقة لنسخه
+      const win = window.open('', '', 'width=600,height=400');
+      win.document.write('<pre style="direction:ltr;text-align:left;font-size:15px;padding:16px;">'+js+'</pre>');
+    }
+    renderList();
+  </script>
+</body>
+</html>

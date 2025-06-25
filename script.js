@@ -1,3 +1,46 @@
+// عناصر DOM
+const searchInput = document.getElementById("searchInput");
+const resultsContainer = document.getElementById("resultsContainer");
+const suggestionsContainer = document.getElementById("suggestions");
+// عناصر نافذة الملاحظات
+const feedbackBtn = document.getElementById("feedbackBtn");
+const feedbackModal = document.getElementById("feedbackModal");
+const closeModal = document.getElementById("closeModal");
+const feedbackForm = document.getElementById("feedbackForm");
+const feedbackText = document.getElementById("feedbackText");
+const feedbackMsg = document.getElementById("feedbackMsg");
+
+// فتح نافذة الملاحظات
+if (feedbackBtn) {
+  feedbackBtn.onclick = function() {
+	feedbackModal.style.display = "flex";
+	feedbackMsg.textContent = "";
+	feedbackText.value = "";
+  };
+}
+// إغلاق النافذة
+if (closeModal) {
+  closeModal.onclick = function() {
+	feedbackModal.style.display = "none";
+  };
+}
+// إغلاق عند الضغط خارج النموذج
+window.onclick = function(event) {
+  if (event.target === feedbackModal) {
+	feedbackModal.style.display = "none";
+  }
+};
+// إرسال النموذج
+if (feedbackForm) {
+  feedbackForm.onsubmit = function(e) {
+	e.preventDefault();
+	feedbackMsg.textContent = "تم إرسال الملاحظة بنجاح. شكرًا لك!";
+	feedbackText.value = "";
+	setTimeout(() => {
+	  feedbackModal.style.display = "none";
+	}, 1800);
+  };
+}
 const websites = {
 "1":"https://maps.app.goo.gl/KiKgAYwhPcow5itx7",
 "60711":"https://maps.app.goo.gl/8t7PqRY7v4Cd2SUYA?g_st=ic",
