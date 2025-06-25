@@ -115,86 +115,51 @@
     <button class="back-btn" onclick="window.location.href='index.html'">العودة للصفحة الرئيسية</button>
   </div>
   <script>
-    // حفظ واسترجاع البيانات من LocalStorage
-    function getEquipments() {
-      return JSON.parse(localStorage.getItem('equipments') || '[]');
-    }
-    function saveEquipments(list) {
-      localStorage.setItem('equipments', JSON.stringify(list));
-    }
+    // جلب البيانات من Google Sheets وعرضها في القائمة
     function renderList() {
-      const list = getEquipments();
-      const container = document.getElementById('adminList');
-      if(list.length === 0) {
-        container.innerHTML = '<p style="color:#888">لا توجد بيانات بعد.</p>';
-        return;
-      }
-      container.innerHTML = '';
-      list.forEach((item, idx) => {
-        const div = document.createElement('div');
-        div.className = 'admin-list-item';
-        div.innerHTML = `<b>${item.id}</b> | <span>${item.location}</span> <span style='color:#888;font-size:0.95em;'>${item.note||''}</span>
-          <button class='edit-btn' onclick='editItem(${idx})'>تعديل</button>
-          <button class='delete-btn' onclick='deleteItem(${idx})'>حذف</button>`;
-        container.appendChild(div);
-      });
+      fetch('https://script.google.com/macros/s/AKfycbxtLYWETbn9LvAo8Oef9pGYPnpnV5_A5dK0sNW-egjueDJQvV_k2iCBEjSHZSQpULnWuQ/exec')
+        .then(res => res.json())
+        .then(list => {
+          const container = document.getElementById('adminList');
+          if(!list || list.length === 0) {
+            container.innerHTML = '<p style="color:#888">لا توجد بيانات بعد.</p>';
+            return;
+          }
+          container.innerHTML = '';
+          list.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = 'admin-list-item';
+            div.innerHTML = `<b>${item[1]}</b> | <span>${item[2]}</span> <span style='color:#888;font-size:0.95em;'>${item[3]||''}</span>`;
+            container.appendChild(div);
+          });
+        })
+        .catch(()=>{
+          document.getElementById('adminList').innerHTML = '<p style="color:#d00">تعذر تحميل البيانات من Google Sheets</p>';
+        });
     }
-    function editItem(idx) {
-      const list = getEquipments();
-      const item = list[idx];
-      document.getElementById('equipId').value = item.id;
-      document.getElementById('equipLocation').value = item.location;
-      document.getElementById('equipNote').value = item.note||'';
-      // حذف القديم ليتم التعديل
-      list.splice(idx,1);
-      saveEquipments(list);
-      renderList();
-    }
-    function deleteItem(idx) {
-      if(confirm('هل أنت متأكد من حذف هذا السطر؟')){
-        const list = getEquipments();
-        list.splice(idx,1);
-        saveEquipments(list);
-        renderList();
-      }
-    }
-    document.getElementById('adminForm').onsubmit = function(e) {
-      e.preventDefault();
-      const id = document.getElementById('equipId').value.trim();
-      const location = document.getElementById('equipLocation').value.trim();
-      const note = document.getElementById('equipNote').value.trim();
-      if(!id || !location) return;
-      fetch('https://script.google.com/macros/s/AKfycbxtLYWETbn9LvAo8Oef9pGYPnpnV5_A5dK0sNW-egjueDJQvV_k2iCBEjSHZSQpULnWuQ/exec', {
-        method: 'POST',
-        body: JSON.stringify({id, location, note}),
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(res => res.text())
-      .then(msg => {
-        alert(msg);
-        this.reset();
-      })
-      .catch(() => alert('حدث خطأ أثناء الحفظ!'));
-    };
     function exportToJS() {
       var pass = prompt('أدخل الرقم السري لتصدير البيانات:');
       if(pass !== 'admin123') {
         if(pass) alert('الرقم السري غير صحيح!');
         return;
       }
-      const list = getEquipments();
-      if(list.length === 0) {
-        alert('لا توجد بيانات للتصدير');
-        return;
-      }
-      let js = 'const websites = {\n';
-      list.forEach(item => {
-        js += `  "${item.id}": "${item.location}", // ${item.note ? item.note.replace(/\n/g, ' ') : ''}\n`;
-      });
-      js += '};';
-      // عرض الكود في نافذة منبثقة لنسخه
-      const win = window.open('', '', 'width=600,height=400');
-      win.document.write('<pre style="direction:ltr;text-align:left;font-size:15px;padding:16px;">'+js+'</pre>');
+      fetch('https://script.google.com/macros/s/AKfycbxtLYWETbn9LvAo8Oef9pGYPnpnV5_A5dK0sNW-egjueDJQvV_k2iCBEjSHZSQpULnWuQ/exec')
+        .then(res => res.json())
+        .then(list => {
+          if(!list || list.length === 0) {
+            alert('لا توجد بيانات للتصدير');
+            return;
+          }
+          let js = 'const websites = {\n';
+          list.forEach(item => {
+            js += `  "${item[1]}": "${item[2]}", // ${item[3] ? item[3].replace(/\n/g, ' ') : ''}\n`;
+          });
+          js += '};';
+          // عرض الكود في نافذة منبثقة لنسخه
+          const win = window.open('', '', 'width=600,height=400');
+          win.document.write('<pre style="direction:ltr;text-align:left;font-size:15px;padding:16px;">'+js+'</pre>');
+        })
+        .catch(() => alert('حدث خطأ أثناء تصدير البيانات!'));
     }
     renderList();
   </script>
