@@ -195,7 +195,6 @@ footer {
 /* استجابة للشاشات الصغيرة */
 @media (max-width: 600px) {
   header {
-    flex-direction: column;
     align-items: flex-end;
     padding: 10px 20px;
   }
