@@ -540,8 +540,74 @@ footer {
   .suggestions {
     width: 100%;
   }
-  .modal-content {
-    padding: 15px 5px 10px 5px;
-    max-width: 95vw;
-  }
+}
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 500px;
+  margin: 20px auto;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+}
+.feedback-form label {
+  font-size: 1rem;
+  color: var(--primary);
+  font-weight: bold;
+}
+.feedback-form select,
+.feedback-form input,
+.feedback-form textarea {
+  padding: 12px;
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  outline: none;
+  transition: border-color 0.3s;
+}
+.feedback-form select:focus,
+.feedback-form input:focus,
+.feedback-form textarea:focus {
+  border-color: var(--secondary);
+}
+.feedback-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.feedback-form button {
+  padding: 10px 25px;
+  background: linear-gradient(to right, var(--secondary), var(--primary));
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.feedback-form button:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+}
+#resetForm {
+  background: #fff;
+  color: var(--primary);
+  border: 1.5px solid var(--secondary);
+}
+#resetForm:hover {
+  background: var(--secondary);
+  color: #fff;
+  border-color: var(--primary);
+}
+#feedbackMsg {
+  margin-top: 10px;
+  font-size: 1rem;
+  text-align: center;
+  color: #27ae60;
+}
+#feedbackMsg.error {
+  color: #d63031;
 }
