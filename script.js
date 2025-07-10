@@ -198,7 +198,7 @@ if (submitFeedback) {
     }
 
     // إرسال البيانات إلى الخادم الوسيط
-    const proxyUrl = "YOUR_PROXY_URL"; // استبدل هذا برابط الخادم الوسيط (مثل https://your-vercel-app.vercel.app/submit)
+    const proxyUrl = "https://se-zeta-nine.vercel.app/submit"; // استبدل هذا برابط الخادم الوسيط (مثل https://your-vercel-app.vercel.app/submit)
     const formData = {
       "entry.1768981552": type,
       "entry.1223622662": equipType,
