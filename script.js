@@ -5,7 +5,7 @@ function loadWebsitesData() {
   if (dataLoaded) return Promise.resolve();
 
   // قائمة الملفات التي تريد تحميلها
-  const files = ['data/QBS.json', 'data/QRS.json', 'data/QUS.json','data/QWS.json', 'data/QMS.json', 'data/websites.json', 'data/alasyah.json'];
+  const files = ['data/QBS.json', 'data/QRS.json', 'data/QUS.json','data/QWS.json', 'data/QMS.json', 'data/websites.json', 'data/alasyah.json', 'data/OCL1.json', 'data/OCL2.json', 'data/OCL4.json', 'data/OCL5.json', 'data/OCL6.json', 'data/OCL7.json', 'data/OCL8.json', 'data/OCL9.json', 'data/OCL10.json', 'data/OCL11.json', 'data/OCL12.json', 'data/OCL13.json', 'data/OCL14.json', 'data/OCL15.json', 'data/OCL16.json', 'data/OCL17.json'];
 
   const fetchPromises = files.map(file =>
     fetch(file)
