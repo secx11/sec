@@ -1,29 +1,25 @@
-/* إعادة تعيين القيم الافتراضية */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* الألوان الأساسية */
 :root {
   --primary: #003366;
   --secondary: #CC7722;
 }
 
-/* تنسيق الخلفية */
 body {
   background-image: url('https://www2.0zz0.com/2025/04/10/14/831748902.jpeg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  background-color: #f0f0f0; /* لون احتياطي */
-  font-family: Arial, sans-serif;
+  background-color: #f0f0f0; /* Ù„ÙˆÙ† Ø§Ø­ØªÙŠØ§Ø·ÙŠ */
+  font-family: Arial, sans-serif; 
   direction: rtl;
   color: #333;
 }
 
-/* تنسيق الهيدر */
 header {
   background-color: rgba(0, 0, 0, 0.7);
   padding: 15px 30px;
@@ -35,13 +31,10 @@ header {
   z-index: 100;
 }
 
-/* تنسيق الشعار */
 .logo img {
   height: 48px;
-  /* تقليل حجم الشعار ليقارب الروابط */
 }
 
-/* تنسيق روابط التنقل */
 .nav-links {
   display: flex;
   flex-direction: column;
@@ -62,7 +55,6 @@ header {
   transition: color 0.3s, background 0.3s, box-shadow 0.3s;
 }
 
-/* إبراز قسم التشغيل كمربع زر خفيف */
 .nav-links a.operation-link {
   background: transparent;
   color: white !important;
@@ -83,7 +75,6 @@ header {
   padding: 5px 18px;
 }
 
-/* زر الملاحظات */
 .feedback-btn {
   margin-top: 25px;
   padding: 10px 25px;
@@ -100,7 +91,6 @@ header {
   transform: translateY(-2px);
 }
 
-/* تنسيق المقدمة */
 .intro {
   width: 100%;
   max-width: 600px;
@@ -113,7 +103,6 @@ header {
   color: #2c3e50;
 }
 
-/* تنسيق قسم البحث */
 section.container {
   width: 90%;
   max-width: 700px;
@@ -125,14 +114,12 @@ section.container {
   align-items: center;
 }
 
-/* تنسيق عنوان القسم */
 section.container h1 {
-  font-size: 24px;
+  font-size: 18px;
   margin-bottom: 20px;
   color: #2c3e50;
 }
 
-/* تنسيق حقل البحث ونتائج البحث */
 .search-box {
   width: 100%;
   max-width: 500px;
@@ -159,7 +146,6 @@ section.container h1 {
   align-items: center;
 }
 
-/* تنسيق النتائج */
 .result-link {
   display: inline-block;
   padding: 10px 20px;
@@ -176,7 +162,6 @@ section.container h1 {
   transform: translateY(-2px);
 }
 
-/* تنسيق قائمة الاقتراحات */
 .suggestions {
   position: absolute;
   top: 100%;
@@ -184,15 +169,15 @@ section.container h1 {
   width: calc(100% - 150px);
   margin-top: 2px;
   border: 2px solid var(--primary);
-  background-color: #f9f9f9; /* لون خلفية أفضل */
+  background-color: #f9f9f9; /* Ù„ÙˆÙ† Ø®Ù„ÙÙŠØ© Ø£ÙØ¶Ù„ */
   border-radius: 15px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   display: none;
   max-height: 150px;
   overflow-y: auto;
   z-index: 10;
-  padding: 10px 0; /* زيادة المسافة الداخلية */
-  font-size: 0.95rem; /* تحسين حجم النص */
+  padding: 10px 0; /* Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ù…Ø³Ø§ÙØ© Ø§Ù„Ø¯Ø§Ø®Ù„ÙŠØ© */
+  font-size: 0.95rem; /* ØªØ­Ø³ÙŠÙ† Ø­Ø¬Ù… Ø§Ù„Ù†Øµ */
 }
 
 .suggestions.active {
@@ -206,8 +191,8 @@ section.container h1 {
 }
 
 .suggestions .suggestion-item:hover {
-  background-color: var(--secondary); /* تحسين لون التمرير */
-  color: white; /* تحسين التباين */
+  background-color: var(--secondary); 
+  color: white; 
 }
 
 .error-message {
@@ -215,7 +200,6 @@ section.container h1 {
   font-size: 1rem;
 }
 
-/* تنسيق الفوتر */
 footer {
   background-color: rgba(0, 0, 0, 0.7);
   color: white;
@@ -226,7 +210,6 @@ footer {
   width: 100%;
 }
 
-/* نافذة الملاحظات */
 .modal {
   display: none;
   position: fixed;
@@ -283,7 +266,6 @@ footer {
   text-align: center;
 }
 
-/* صندوق اختيار العنوان */
 .title-select-box {
   width: 100%;
   text-align: center;
@@ -302,7 +284,6 @@ footer {
   margin-right: 5px;
 }
 
-/* أيقونة التوضيح بجانب قسم التشغيل */
 .info-icon {
   display: inline-block;
   margin-right: 4px;
@@ -328,7 +309,6 @@ footer {
   vertical-align: middle;
 }
 
-/* الأيقونة الجديدة لنص المقدمة */
 .intro-icon {
   display: inline-block;
   margin-left: 4px;
@@ -347,7 +327,6 @@ footer {
   vertical-align: middle;
 }
 
-/* تنسيق زر القلم */
 .pen-btn {
   position: fixed;
   left: 30px;
@@ -373,7 +352,6 @@ footer {
   display: block;
 }
 
-/* تنسيق زر القلم الصغير بجانب قسم التشغيل */
 .pen-btn-inline {
   background: #fff;
   border: 1.5px solid var(--secondary);
@@ -399,7 +377,6 @@ footer {
   display: block;
 }
 
-/* تنسيق زر المقدمة الجديد */
 .intro-btn {
   background: #fff;
   border: 1.5px solid var(--secondary);
@@ -425,7 +402,6 @@ footer {
   vertical-align: middle;
 }
 
-/* تنسيق إضافي لمحاذاة الأيقونة ونص قسم التشغيل */
 .icon-text-horizontal {
   width: 18px;
   height: 18px;
@@ -442,7 +418,6 @@ footer {
   margin-left: 6px;
 }
 
-/* تنسيق مجموعة قسم التشغيل والأيقونات بشكل أفقي */
 .operation-horizontal-group {
   display: flex;
   flex-direction: row;
@@ -460,7 +435,6 @@ footer {
   gap: 4px;
 }
 
-/* تنسيق أزرار إضافة موقع/ملاحظة وزر الإدارة */
 .add-buttons-group {
   display: flex;
   flex-direction: row;
@@ -499,7 +473,6 @@ footer {
   border-color: var(--primary);
 }
 
-/* استجابة للشاشات الصغيرة */
 @media (max-width: 600px) {
   header {
     align-items: flex-end;

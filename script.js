@@ -1,21 +1,63 @@
-let websites = {
-  "1": "https://maps.app.goo.gl/KiKgAYwhPcow5itx7",
-  "QW4-789-22": "https://maps.app.goo.gl/R1oVAA1srYB6Gwsy8?g_st=ic",
-  "QW4-799-3A": "https://maps.app.goo.gl/Vciq98Tor1X98a1E7?g_st=ic",
-  "QW4-702": "https://maps.app.goo.gl/iA8AhhuAK3BokvAV9?g_st=ic",
-  "QW4-692": "https://maps.app.goo.gl/itaqzXgLaJCqog1E6?g_st=ic",
-  "AP2-138-31-168-4": "https://maps.app.goo.gl/YyyiGNozLjRLmbfK6?g_st=iw",
-  "37397": "https://maps.app.goo.gl/Gu2ySogCLDNQzH5p8?g_st=ic",
-  "Uzs4-51": "https://maps.app.goo.gl/QXgkmbsg6QHwFmRL8?g_st=ic",
-  "UZS4-60A-20": "https://maps.app.goo.gl/p1msfw6SAkwhS2W6A?g_st=ic",
-  "Uzs4-68": "https://maps.app.goo.gl/D9BATeg8Ds2ywewg6?g_st=ic",
-  "UZS4-82-2": "https://maps.app.goo.gl/HH9RnHCbBgkM5HFz6?g_st=ic",
-  "Uzs4-91-9A": "https://maps.app.goo.gl/MtrBUga2ozzuakDu6?g_st=ic",
-  "UZW9-77": "https://maps.app.goo.gl/jQNgRVMeQB8rfsh6A?g_st=ic",
-  "КА3-6": "https://maps.app.goo.gl/qpejoza8oYpeohZ66",
-  "КАЗ-2А": "https://maps.app.goo.gl/jiqJo2jJRGKbyg9U8"
-};
+let websites = {};
+let dataLoaded = false;
 
+function loadWebsitesData() {
+  if (dataLoaded) return Promise.resolve();
+
+  // قائمة الملفات التي تريد تحميلها
+  const files = ['data/QBS.json', 'data/QRS.json', 'data/QUS.json','data/QWS.json', 'data/QMS.json', 'data/websites.json', 'data/alasyah.json'];
+
+  const fetchPromises = files.map(file =>
+    fetch(file)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`file to load ${file}`);
+        }
+        return res.json();
+      })
+  );
+
+  return Promise.all(fetchPromises)
+    .then(dataArray => {
+      // دمج البيانات من جميع الملفات
+      dataArray.forEach(data => {
+        Object.assign(websites, data);
+      });
+      dataLoaded = true;
+      console.log('All websites data loaded:', websites);
+    })
+    .catch(error => {
+      console.error('Error loading websites data:', error);
+    });
+}
+
+// وظيفة للحصول على رابط باستخدام المفتاح
+function getWebsiteByKey(key) {
+  if (!dataLoaded) {
+    console.error('Data not loaded yet. Call loadWebsitesData first.');
+    return null;
+  }
+
+  return websites[key] || 'Key not found';
+}
+
+// تحميل البيانات وتجربة الوصول لها
+loadWebsitesData().then(() => {
+  console.log(getWebsiteByKey("79906")); // يعرض الرابط إذا كان المفتاح موجودًا
+});
+// عدّل دوال البحث والاقتراحات لتنتظر تحميل البيانات أولاً:
+function showSuggestions(searchTerm) {
+  loadWebsitesData().then(() => {
+    // ...نفس الكود السابق لعرض الاقتراحات...
+  });
+}
+
+function performSearch(searchTerm) {
+  loadWebsitesData().then(() => {
+    // ...نفس كود البحث السابق...
+  });
+}
+// script.js
 const feedbackBtn = document.getElementById("feedbackBtn");
 const feedbackModal = document.getElementById("feedbackModal");
 const closeModal = document.getElementById("closeModal");
@@ -89,24 +131,24 @@ function showSuggestions(searchTerm) {
     return;
   }
 
-  const matchingKeys = Object.keys(websites)
-    .filter(key => key.toLowerCase().includes(searchTerm.toLowerCase()))
-    .slice(0, 5);
+  const matchingKeys = Object.keys(websites).filter(key =>
+        key.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  if (matchingKeys.length > 0) {
-    matchingKeys.forEach(key => {
-      const suggestionItem = document.createElement("div");
-      suggestionItem.textContent = key;
-      suggestionItem.className = "suggestion-item";
-      suggestionItem.addEventListener("click", () => {
-        searchInput.value = key;
-        performSearch(key);
-        suggestionsContainer.style.display = "none";
-      });
-      suggestionsContainer.appendChild(suggestionItem);
-    });
-    suggestionsContainer.style.display = "block";
-  }
+    if (matchingKeys.length > 0) {
+        matchingKeys.forEach(key => {
+            const suggestionItem = document.createElement("div");
+            suggestionItem.textContent = key;
+            suggestionItem.className = "suggestion-item";
+            suggestionItem.addEventListener("click", () => {
+                searchInput.value = key;
+                performSearch(key);
+                suggestionsContainer.style.display = "none";
+            });
+            suggestionsContainer.appendChild(suggestionItem);
+        });
+        suggestionsContainer.style.display = "block";
+    }
 }
 
 function performSearch(searchTerm) {
@@ -165,9 +207,9 @@ if (equipmentLink) {
   });
 }
 
-// إرسال النموذج إلى خادم وسيط
+// إرسال النموذج إلى Google Forms
 if (submitFeedback) {
-  submitFeedback.onclick = async function(e) {
+  submitFeedback.onclick = function(e) {
     e.preventDefault();
     const type = feedbackType.value;
     const equipType = equipmentType.value;
@@ -197,60 +239,54 @@ if (submitFeedback) {
       return;
     }
 
-    // إرسال البيانات إلى الخادم الوسيط
-    const proxyUrl = "https://se-zeta-nine.vercel.app/submit"; // استبدل هذا برابط الخادم الوسيط (مثل https://your-vercel-app.vercel.app/submit)
-    const formData = {
-      "entry.1768981552": type,
-      "entry.1223622662": equipType,
-      "entry.507274621": code,
-      "entry.838611703": link,
-      "entry.826576113": reason,
-      "dlut": Date.now().toString()
-    };
+    // إرسال البيانات إلى Google Forms
+    const formData = new FormData();
+    formData.append("entry.1768981552", type);
+    formData.append("entry.1223622662", equipType);
+    formData.append("entry.507274621", code);
+    formData.append("entry.838611703", link);
+    formData.append("entry.826576113", reason);
 
-    try {
-      const response = await fetch(proxyUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
+    fetch("https://docs.google.com/forms/d/e/1FAIpQLSfBKCbDVJ-ju6LuwL7qKXP2L7cav0wWQVv99ojK2b_HWpdMFw/formResponse", {
+      method: "POST",
+      body: formData
+    })
+      .then(response => {
+        if (response.ok || response.type === "opaque") {
+          feedbackMsg.textContent = "تم إرسال الإدخال بنجاح!";
+          feedbackMsg.className = "";
+          equipmentType.value = "";
+          equipmentCode.value = "";
+          equipmentLink.value = "";
+          correctionReason.value = "";
+          correctionReason.style.display = "none";
+          correctionReasonLabel.style.display = "none";
+          feedbackType.value = "إضافة";
+          setTimeout(() => {
+            feedbackMsg.textContent = "";
+            if (feedbackModal) feedbackModal.style.display = "none";
+          }, 3000);
+        } else {
+          throw new Error("فشل إرسال النموذج");
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        feedbackMsg.textContent = "";
+        feedbackMsg.className = "error";
       });
 
-      if (response.ok) {
-        feedbackMsg.textContent = "تم إرسال الإدخال بنجاح!";
-        feedbackMsg.className = "";
-        equipmentType.value = "";
-        equipmentCode.value = "";
-        equipmentLink.value = "";
-        correctionReason.value = "";
-        correctionReason.style.display = "none";
-        correctionReasonLabel.style.display = "none";
-        feedbackType.value = "إضافة";
-        setTimeout(() => {
-          feedbackMsg.textContent = "";
-          if (feedbackModal) feedbackModal.style.display = "none";
-        }, 3000);
-
-        // تخزين احتياطي في localStorage
-        const feedbackList = JSON.parse(localStorage.getItem("feedbackList") || "[]");
-        feedbackList.push({
-          type,
-          equipmentType: equipType,
-          code,
-          link,
-          reason: type === "تصحيح" ? reason : "",
-          timestamp: new Date().toISOString()
-        });
-        localStorage.setItem("feedbackList", JSON.stringify(feedbackList));
-      } else {
-        throw new Error(`فشل الإرسال: ${response.status} ${response.statusText}`);
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      feedbackMsg.textContent = "حدث خطأ أثناء الإرسال. تحقق من الاتصال بالخادم الوسيط.";
-      feedbackMsg.className = "error";
-    }
+    // تخزين احتياطي في localStorage
+    const feedbackList = JSON.parse(localStorage.getItem("feedbackList") || "[]");
+    feedbackList.push({
+      type,
+      equipmentType: equipType,
+      code,
+      link,
+      reason: type === "تصحيح" ? reason : "",
+      timestamp: new Date().toISOString()
+    });
+    localStorage.setItem("feedbackList", JSON.stringify(feedbackList));
   };
 }
 

@@ -1,72 +1,39 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>إدارة كهرباء القصيم - تقديم ملاحظات أو إضافة معدة</title>
+  <title>إدارة كهرباء القصيم - إضافة وتعديل مواقع المعدات </title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" href="favicon.ico" type="image/x-icon"><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-FCJQ9RJQ0V');
+  </script>
 </head>
 <body>
   <header>
     <div class="logo">
-      <img src="https://www2.0zz0.com/2025/04/09/19/540933648.png" alt="شعار إدارة كهرباء القصيم">
+      <img src="https://image2url.com/r2/default/images/1772215141019-d6ada242-5f67-456c-b210-85569924ff1a.jpeg" alt="شعار إدارة كهرباء القصيم">
     </div>
     <div class="nav-links">
       <a href="index.html" class="operation-link">الصفحة الرئيسية</a>
-      <a href="operations.html" class="operation-link">قسم التشغيل</a>
-      <a href="feedback.html" class="pen-btn-inline" aria-label="تقديم ملاحظات أو إضافة معدة">
+      <a href="operations.html" class="pen-btn-inline"aria-label="قسم التشغيل">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="14" height="2.5" rx="1.2" fill="#CC7722"></rect><rect x="3" y="8" width="10" height="2" rx="1" fill="#CC7722"></rect><rect x="3" y="12" width="7" height="1.5" rx="0.8" fill="#CC7722"></rect><circle cx="16" cy="15.5" r="1.2" fill="#CC7722"></circle></svg>
+
+      <a href="feedback.html" class="pen-btn-inline" aria-label="هنا إضافةأو تعديل مواقع المعدات">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="#333"/>
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="#CC7722"/>
         </svg>
       </a>
     </div>
   </header>
   <main>
     <section class="container">
-      <h1>تقديم ملاحظات أو إضافة معدة</h1>
-      <p style="font-size: 0.9rem; color: #2c3e50; margin-bottom: 10px;">
-        أدخل رمز المعدة (مثل QW4-789-22 أو КА3-6 أو 12345). استخدم رابط خرائط Google صالحًا (مثل https://maps.app.goo.gl/XXXXX). سيتم إرسال البيانات مباشرة إلى النموذج.
-      </p>
+      <h1>هنا إضافةأو تعديل مواقع المعدات</h1>
+      <p style="font-size: 0.9rem; color: #ffffffff; margin-bottom: 10px;">
+        </p>
       <div class="feedback-form">
         <label for="feedbackType">نوع الإدخال:</label>
         <select id="feedbackType" aria-label="اختر نوع الإدخال">
@@ -77,11 +44,16 @@
         <select id="equipmentType" aria-label="اختر نوع المعدة">
           <option value="">اختر نوع المعدة</option>
           <option value="RMU">RMU</option>
-          <option value="محول">محول</option>
+          <option value="Transformer">Transformer</option>
+          <option value="Recloser">Recloser</option>
+          <option value="Sectionalizer">Sectionalizer</option>
+          <option value="LBS">LBS</option>
+          <option value="Capacitor">Capacitor</option>
+          <option value="voltage regulator">voltage regulator</option>
           <option value="أخرى">أخرى</option>
         </select>
         <label for="equipmentCode">رقم المعدة:</label>
-        <input type="text" id="equipmentCode" placeholder="أدخل رمز المعدة (مثل QW4-789-22 أو 12345)" aria-label="رقم المعدة">
+        <input type="text" id="equipmentCode" placeholder="أدخل رقم المعدة " aria-label="رقم المعدة">
         <label for="equipmentLink">رابط خرائط Google:</label>
         <input type="text" id="equipmentLink" placeholder="أدخل رابط خرائط Google" aria-label="رابط خرائط Google">
         <label for="correctionReason" id="correctionReasonLabel" style="display: none;">سبب التعديل (إجباري):</label>
