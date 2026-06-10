@@ -1,34 +1,62 @@
 let websites = {};
 let dataLoaded = false;
+let dataLoadingPromise = null;
 
+// تحميل بيانات المواقع مرة واحدة فقط
 function loadWebsitesData() {
-  if (dataLoaded) return Promise.resolve();
+  if (dataLoaded) return Promise.resolve(websites);
+  if (dataLoadingPromise) return dataLoadingPromise;
 
-  // قائمة الملفات التي تريد تحميلها
-  const files = ['data/QBS.json', 'data/QRS.json', 'data/QUS.json','data/QWS.json', 'data/QMS.json', 'data/websites.json', 'data/alasyah.json', 'data/OCL1.json', 'data/OCL2.json', 'data/OCL4.json', 'data/OCL5.json', 'data/OCL6.json', 'data/OCL7.json', 'data/OCL8.json', 'data/OCL9.json', 'data/OCL10.json', 'data/OCL11.json', 'data/OCL12.json', 'data/OCL13.json', 'data/OCL14.json', 'data/OCL15.json', 'data/OCL16.json', 'data/OCL17.json'];
+  const files = [
+    'data/QBS.json',
+    'data/QRS.json',
+    'data/QUS.json',
+    'data/QWS.json',
+    'data/QMS.json',
+    'data/websites.json',
+    'data/alasyah.json',
+    'data/OCL1.json',
+    'data/OCL2.json',
+    'data/OCL4.json',
+    'data/OCL5.json',
+    'data/OCL6.json',
+    'data/OCL7.json',
+    'data/OCL8.json',
+    'data/OCL9.json',
+    'data/OCL10.json',
+    'data/OCL11.json',
+    'data/OCL12.json',
+    'data/OCL13.json',
+    'data/OCL14.json',
+    'data/OCL15.json',
+    'data/OCL16.json',
+    'data/OCL17.json'
+  ];
 
-  const fetchPromises = files.map(file =>
-    fetch(file)
-      .then(res => {
+  dataLoadingPromise = Promise.all(
+    files.map(file =>
+      fetch(file).then(res => {
         if (!res.ok) {
-          throw new Error(`file to load ${file}`);
+          throw new Error(`تعذر تحميل الملف: ${file}`);
         }
         return res.json();
       })
-  );
-
-  return Promise.all(fetchPromises)
+    )
+  )
     .then(dataArray => {
-      // دمج البيانات من جميع الملفات
       dataArray.forEach(data => {
         Object.assign(websites, data);
       });
       dataLoaded = true;
       console.log('All websites data loaded:', websites);
+      return websites;
     })
     .catch(error => {
       console.error('Error loading websites data:', error);
+      throw error;
     });
+
+  return dataLoadingPromise;
 }
 
 // وظيفة للحصول على رابط باستخدام المفتاح
@@ -41,23 +69,132 @@ function getWebsiteByKey(key) {
   return websites[key] || 'Key not found';
 }
 
-// تحميل البيانات وتجربة الوصول لها
-loadWebsitesData().then(() => {
-  console.log(getWebsiteByKey("79906")); // يعرض الرابط إذا كان المفتاح موجودًا
-});
-// عدّل دوال البحث والاقتراحات لتنتظر تحميل البيانات أولاً:
-function showSuggestions(searchTerm) {
-  loadWebsitesData().then(() => {
-    // ...نفس الكود السابق لعرض الاقتراحات...
-  });
+// ----------------------
+// أدوات تحسين البحث
+// ----------------------
+
+// توحيد النص قبل المقارنة
+function normalizeText(text) {
+  return String(text || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
 }
 
-function performSearch(searchTerm) {
-  loadWebsitesData().then(() => {
-    // ...نفس كود البحث السابق...
-  });
+// حساب مسافة Levenshtein لمعرفة الأقرب
+function levenshteinDistance(a, b) {
+  const matrix = [];
+  const lenA = a.length;
+  const lenB = b.length;
+
+  if (lenA === 0) return lenB;
+  if (lenB === 0) return lenA;
+
+  for (let i = 0; i <= lenB; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= lenA; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= lenB; i++) {
+    for (let j = 1; j <= lenA; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // replace
+          matrix[i][j - 1] + 1,     // insert
+          matrix[i - 1][j] + 1      // delete
+        );
+      }
+    }
+  }
+
+  return matrix[lenB][lenA];
 }
-// script.js
+
+// جلب أقرب الاقتراحات بحد أقصى 10
+function getClosestSuggestions(searchTerm, limit = 10) {
+  const normalizedTerm = normalizeText(searchTerm);
+  const keys = Object.keys(websites);
+
+  if (!normalizedTerm) return [];
+
+  // أولاً: نبحث عن التطابقات المباشرة (contains)
+  const directMatches = keys
+    .map(key => {
+      const normalizedKey = normalizeText(key);
+      const exact = normalizedKey === normalizedTerm;
+      const startsWith = normalizedKey.startsWith(normalizedTerm);
+      const includes = normalizedKey.includes(normalizedTerm);
+      const position = normalizedKey.indexOf(normalizedTerm);
+
+      return {
+        key,
+        normalizedKey,
+        exact,
+        startsWith,
+        includes,
+        position,
+        distance: levenshteinDistance(normalizedTerm, normalizedKey),
+        lengthDiff: Math.abs(normalizedKey.length - normalizedTerm.length)
+      };
+    })
+    .filter(item => item.includes);
+
+  if (directMatches.length > 0) {
+    return directMatches
+      .sort((a, b) => {
+        // 1) تطابق كامل
+        if (a.exact !== b.exact) return a.exact ? -1 : 1;
+
+        // 2) يبدأ بنفس النص
+        if (a.startsWith !== b.startsWith) return a.startsWith ? -1 : 1;
+
+        // 3) موقع النص داخل الكلمة
+        if (a.position !== b.position) return a.position - b.position;
+
+        // 4) أقل مسافة
+        if (a.distance !== b.distance) return a.distance - b.distance;
+
+        // 5) الأقصر فرقًا بالطول
+        if (a.lengthDiff !== b.lengthDiff) return a.lengthDiff - b.lengthDiff;
+
+        return a.key.localeCompare(b.key, 'ar');
+      })
+      .slice(0, limit)
+      .map(item => item.key);
+  }
+
+  // إذا ما فيه تطابق مباشر، نجيب أقرب النتائج التقريبية
+  const maxDistance = Math.max(1, Math.floor(normalizedTerm.length * 0.4));
+
+  const fuzzyMatches = keys
+    .map(key => {
+      const normalizedKey = normalizeText(key);
+      return {
+        key,
+        distance: levenshteinDistance(normalizedTerm, normalizedKey),
+        lengthDiff: Math.abs(normalizedKey.length - normalizedTerm.length)
+      };
+    })
+    .filter(item => item.distance <= maxDistance)
+    .sort((a, b) => {
+      if (a.distance !== b.distance) return a.distance - b.distance;
+      if (a.lengthDiff !== b.lengthDiff) return a.lengthDiff - b.lengthDiff;
+      return a.key.localeCompare(b.key, 'ar');
+    })
+    .slice(0, limit)
+    .map(item => item.key);
+
+  return fuzzyMatches;
+}
+
+// ----------------------
+// عناصر الصفحة
+// ----------------------
 const feedbackBtn = document.getElementById("feedbackBtn");
 const feedbackModal = document.getElementById("feedbackModal");
 const closeModal = document.getElementById("closeModal");
@@ -76,38 +213,46 @@ const feedbackMsg = document.getElementById("feedbackMsg");
 
 // فتح نافذة الملاحظات
 if (feedbackBtn) {
-  feedbackBtn.onclick = function() {
+  feedbackBtn.onclick = function () {
     feedbackModal.style.display = "flex";
   };
 }
 
 // إغلاق النافذة
 if (closeModal) {
-  closeModal.onclick = function() {
+  closeModal.onclick = function () {
     feedbackModal.style.display = "none";
   };
 }
 
 // إغلاق عند الضغط خارج النموذج
 if (feedbackModal) {
-  window.onclick = function(event) {
+  window.onclick = function (event) {
     if (event.target === feedbackModal) {
       feedbackModal.style.display = "none";
     }
   };
 }
 
+// تحميل البيانات أول ما الصفحة تفتح
+loadWebsitesData().catch(() => {
+  if (resultsContainer) {
+    resultsContainer.innerHTML = "<p>تعذر تحميل بيانات المواقع.</p>";
+    resultsContainer.className = "error-message";
+  }
+});
+
 // البحث التلقائي مع تأخير
 let searchTimer;
 if (searchInput) {
-  searchInput.addEventListener("input", function() {
+  searchInput.addEventListener("input", function () {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       showSuggestions(this.value.trim());
     }, 300);
   });
 
-  searchInput.addEventListener("keypress", function(e) {
+  searchInput.addEventListener("keypress", function (e) {
     if (e.key === "Enter") {
       performSearch(this.value.trim());
       suggestionsContainer.style.display = "none";
@@ -115,44 +260,56 @@ if (searchInput) {
   });
 }
 
-if (suggestionsContainer) {
-  document.addEventListener("click", function(e) {
+// إخفاء الاقتراحات إذا ضغط خارجها
+if (suggestionsContainer && searchInput) {
+  document.addEventListener("click", function (e) {
     if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
       suggestionsContainer.style.display = "none";
     }
   });
 }
 
-function showSuggestions(searchTerm) {
+// عرض الاقتراحات (أقرب 10 فقط)
+async function showSuggestions(searchTerm) {
   suggestionsContainer.innerHTML = "";
   suggestionsContainer.style.display = "none";
 
-  if (!searchTerm) {
-    return;
-  }
+  if (!searchTerm) return;
 
-  const matchingKeys = Object.keys(websites).filter(key =>
-        key.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  try {
+    await loadWebsitesData();
+
+    const matchingKeys = getClosestSuggestions(searchTerm, 10);
 
     if (matchingKeys.length > 0) {
-        matchingKeys.forEach(key => {
-            const suggestionItem = document.createElement("div");
-            suggestionItem.textContent = key;
-            suggestionItem.className = "suggestion-item";
-            suggestionItem.addEventListener("click", () => {
-                searchInput.value = key;
-                performSearch(key);
-                suggestionsContainer.style.display = "none";
-            });
-            suggestionsContainer.appendChild(suggestionItem);
+      const fragment = document.createDocumentFragment();
+
+      matchingKeys.forEach(key => {
+        const suggestionItem = document.createElement("div");
+        suggestionItem.textContent = key;
+        suggestionItem.className = "suggestion-item";
+
+        suggestionItem.addEventListener("click", () => {
+          searchInput.value = key;
+          performSearch(key);
+          suggestionsContainer.style.display = "none";
         });
-        suggestionsContainer.style.display = "block";
+
+        fragment.appendChild(suggestionItem);
+      });
+
+      suggestionsContainer.appendChild(fragment);
+      suggestionsContainer.style.display = "block";
     }
+  } catch (error) {
+    console.error("Error showing suggestions:", error);
+  }
 }
 
-function performSearch(searchTerm) {
+// تنفيذ البحث
+async function performSearch(searchTerm) {
   resultsContainer.innerHTML = "<p>جارٍ البحث...</p>";
+  resultsContainer.className = "";
 
   if (!searchTerm) {
     resultsContainer.innerHTML = "<p>الرجاء إدخال كلمة للبحث</p>";
@@ -160,27 +317,61 @@ function performSearch(searchTerm) {
     return;
   }
 
-  const foundKey = Object.keys(websites).find(key =>
-    key.toLowerCase() === searchTerm.toLowerCase()
-  );
+  try {
+    await loadWebsitesData();
 
-  if (foundKey) {
-    resultsContainer.innerHTML = "";
-    const linkElement = document.createElement("a");
-    linkElement.href = websites[foundKey];
-    linkElement.textContent = "انقر هنا للانتقال إلى الموقع";
-    linkElement.target = "_blank";
-    linkElement.className = "result-link";
-    resultsContainer.appendChild(linkElement);
-  } else {
-    resultsContainer.innerHTML = "<p>لم يتم العثور على الموقع المطلوب.</p>";
+    const foundKey = Object.keys(websites).find(
+      key => normalizeText(key) === normalizeText(searchTerm)
+    );
+
+    if (foundKey) {
+      resultsContainer.innerHTML = "";
+      const linkElement = document.createElement("a");
+      linkElement.href = websites[foundKey];
+      linkElement.textContent = "انقر هنا للانتقال إلى الموقع";
+      linkElement.target = "_blank";
+      linkElement.className = "result-link";
+      resultsContainer.appendChild(linkElement);
+    } else {
+      const closestKeys = getClosestSuggestions(searchTerm, 10);
+
+      if (closestKeys.length > 0) {
+        resultsContainer.innerHTML = "<p>لم يتم العثور على تطابق كامل. هذه أقرب النتائج:</p>";
+        resultsContainer.className = "";
+
+        const listWrapper = document.createElement("div");
+        listWrapper.className = "closest-results";
+
+        closestKeys.forEach(key => {
+          const item = document.createElement("div");
+          item.className = "suggestion-item";
+          item.textContent = key;
+
+          item.addEventListener("click", () => {
+            searchInput.value = key;
+            performSearch(key);
+            suggestionsContainer.style.display = "none";
+          });
+
+          listWrapper.appendChild(item);
+        });
+
+        resultsContainer.appendChild(listWrapper);
+      } else {
+        resultsContainer.innerHTML = "<p>لم يتم العثور على الموقع المطلوب.</p>";
+        resultsContainer.className = "error-message";
+      }
+    }
+  } catch (error) {
+    console.error("Error performing search:", error);
+    resultsContainer.innerHTML = "<p>حدث خطأ أثناء البحث.</p>";
     resultsContainer.className = "error-message";
   }
 }
 
-// إظهار/إخفاء حقل سبب التعديل في feedback.html و modal
+// إظهار/إخفاء حقل سبب التعديل
 if (feedbackType) {
-  feedbackType.addEventListener("change", function() {
+  feedbackType.addEventListener("change", function () {
     if (this.value === "تصحيح") {
       correctionReason.style.display = "block";
       correctionReasonLabel.style.display = "block";
@@ -195,7 +386,7 @@ if (feedbackType) {
 
 // معاينة رابط خرائط Google
 if (equipmentLink) {
-  equipmentLink.addEventListener("input", function() {
+  equipmentLink.addEventListener("input", function () {
     const link = this.value.trim();
     if (link.includes("maps.app.goo.gl")) {
       feedbackMsg.textContent = "الرابط صالح!";
@@ -209,37 +400,39 @@ if (equipmentLink) {
 
 // إرسال النموذج إلى Google Forms
 if (submitFeedback) {
-  submitFeedback.onclick = function(e) {
+  submitFeedback.onclick = function (e) {
     e.preventDefault();
+
     const type = feedbackType.value;
     const equipType = equipmentType.value;
     const code = equipmentCode.value.trim();
     const link = equipmentLink.value.trim();
     const reason = correctionReason.value.trim();
 
-    // التحقق من الحقول
     if (!equipType) {
       feedbackMsg.textContent = "الرجاء اختيار نوع المعدة.";
       feedbackMsg.className = "error";
       return;
     }
+
     if (!code || !link) {
       feedbackMsg.textContent = "الرجاء إدخال رمز المعدة ورابط خرائط Google.";
       feedbackMsg.className = "error";
       return;
     }
+
     if (type === "تصحيح" && !reason) {
       feedbackMsg.textContent = "الرجاء إدخال سبب التعديل.";
       feedbackMsg.className = "error";
       return;
     }
+
     if (!link.includes("maps.app.goo.gl")) {
       feedbackMsg.textContent = "الرجاء إدخال رابط خرائط Google صالح.";
       feedbackMsg.className = "error";
       return;
     }
 
-    // إرسال البيانات إلى Google Forms
     const formData = new FormData();
     formData.append("entry.1768981552", type);
     formData.append("entry.1223622662", equipType);
@@ -255,6 +448,7 @@ if (submitFeedback) {
         if (response.ok || response.type === "opaque") {
           feedbackMsg.textContent = "تم إرسال الإدخال بنجاح!";
           feedbackMsg.className = "";
+
           equipmentType.value = "";
           equipmentCode.value = "";
           equipmentLink.value = "";
@@ -262,6 +456,7 @@ if (submitFeedback) {
           correctionReason.style.display = "none";
           correctionReasonLabel.style.display = "none";
           feedbackType.value = "إضافة";
+
           setTimeout(() => {
             feedbackMsg.textContent = "";
             if (feedbackModal) feedbackModal.style.display = "none";
@@ -272,7 +467,7 @@ if (submitFeedback) {
       })
       .catch(error => {
         console.error("Error:", error);
-        feedbackMsg.textContent = "";
+        feedbackMsg.textContent = "حدث خطأ أثناء الإرسال.";
         feedbackMsg.className = "error";
       });
 
@@ -292,7 +487,7 @@ if (submitFeedback) {
 
 // إعادة تعيين النموذج
 if (resetForm) {
-  resetForm.onclick = function() {
+  resetForm.onclick = function () {
     equipmentType.value = "";
     equipmentCode.value = "";
     equipmentLink.value = "";
@@ -302,6 +497,7 @@ if (resetForm) {
     feedbackType.value = "إضافة";
     feedbackMsg.textContent = "تم إعادة تعيين النموذج.";
     feedbackMsg.className = "";
+
     setTimeout(() => {
       feedbackMsg.textContent = "";
     }, 3000);
@@ -310,13 +506,15 @@ if (resetForm) {
 
 // اختصار Ctrl+Enter للإرسال
 if (equipmentCode && equipmentLink && correctionReason) {
-  equipmentCode.addEventListener("keypress", function(e) {
+  equipmentCode.addEventListener("keypress", function (e) {
     if (e.ctrlKey && e.key === "Enter") submitFeedback.click();
   });
-  equipmentLink.addEventListener("keypress", function(e) {
+
+  equipmentLink.addEventListener("keypress", function (e) {
     if (e.ctrlKey && e.key === "Enter") submitFeedback.click();
   });
-  correctionReason.addEventListener("keypress", function(e) {
+
+  correctionReason.addEventListener("keypress", function (e) {
     if (e.ctrlKey && e.key === "Enter") submitFeedback.click();
   });
 }
